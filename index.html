@@ -1,0 +1,902 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Bank It!</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Bungee&family=Oswald:wght@500;600;700&family=Archivo:wght@400;500;600;700&display=swap">
+<style>
+/* ============ BANK IT! — night-felt table ============ */
+:root{
+  --felt-950:#081410;
+  --felt-900:#0C1D16;
+  --felt-800:#12271D;
+  --felt-700:#1A3627;
+  --felt-650:#20402E;
+  --line:#2A4A38;
+  --line-soft:#1E3A2B;
+  --ivory:#F2EAD3;
+  --ivory-dim:#9DB3A4;
+  --brass:#E7B04A;
+  --brass-hi:#F6CC7A;
+  --brass-deep:#B97F2A;
+  --red:#E85C41;
+  --red-dim:#8A3A2C;
+  --mint:#63C98D;
+  --mint-deep:#2E7A50;
+  --disp:"Bungee", "Arial Black", sans-serif;
+  --num:"Oswald", "Arial Narrow", Impact, sans-serif;
+  --body:"Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+}
+*{box-sizing:border-box; margin:0; padding:0;}
+html{-webkit-text-size-adjust:100%;}
+body{
+  background:var(--felt-950);
+  background-image:radial-gradient(120% 90% at 50% 0%, #0E241B 0%, var(--felt-950) 70%);
+  background-attachment:fixed;
+  color:var(--ivory);
+  font-family:var(--body);
+  font-size:16px;
+  line-height:1.45;
+  min-height:100vh;
+}
+button{
+  font-family:inherit; color:inherit; background:none; border:none; cursor:pointer;
+  touch-action:manipulation; -webkit-tap-highlight-color:transparent;
+}
+button:focus-visible, input:focus-visible, a:focus-visible{
+  outline:2px solid var(--brass); outline-offset:2px; border-radius:6px;
+}
+input{font-family:inherit;}
+
+#app{
+  max-width:460px; margin:0 auto; min-height:100vh;
+  display:flex; flex-direction:column;
+  background:var(--felt-900);
+  box-shadow:0 0 0 1px var(--line-soft), 0 0 80px rgba(0,0,0,.55);
+}
+@media (max-width:479px){ #app{box-shadow:none; background:transparent;} }
+
+.eyebrow{
+  font-family:var(--num); font-weight:600; font-size:12px;
+  letter-spacing:.22em; text-transform:uppercase; color:var(--ivory-dim);
+}
+.num{ font-family:var(--num); font-variant-numeric:tabular-nums; }
+
+/* ---------- setup ---------- */
+.setup{ padding:40px 22px calc(28px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:30px; flex:1; }
+.wordmark{ text-align:center; padding-top:12px; }
+.wordmark .pips{ display:flex; justify-content:center; gap:9px; margin-bottom:16px; }
+.wordmark h1{
+  font-family:var(--disp); font-weight:400; font-size:clamp(44px, 13vw, 58px);
+  line-height:.95; color:var(--brass); text-shadow:0 3px 0 #5C3F12, 0 10px 26px rgba(0,0,0,.5);
+  letter-spacing:.01em;
+}
+.wordmark .tag{ margin-top:12px; color:var(--ivory-dim); font-size:15px; }
+.setup-block{ display:flex; flex-direction:column; gap:12px; }
+.setup-block > .eyebrow{ padding-left:2px; }
+.roster{ display:flex; flex-direction:column; gap:8px; }
+.roster-row{
+  display:flex; align-items:center; gap:12px;
+  background:var(--felt-800); border:1px solid var(--line-soft); border-radius:12px;
+  padding:11px 8px 11px 14px;
+}
+.roster-row .seat{
+  font-family:var(--num); font-weight:600; font-size:13px; color:var(--brass-deep); width:20px; text-align:center;
+}
+.roster-row .rname{ flex:1; font-weight:600; font-size:16px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.roster-row .kick{ color:var(--ivory-dim); font-size:18px; padding:4px 12px; border-radius:8px; line-height:1; }
+.roster-row .kick:active{ color:var(--red); }
+.add-form{ display:flex; gap:8px; }
+.add-form input{
+  flex:1; min-width:0; background:var(--felt-950); border:1px solid var(--line); border-radius:12px;
+  color:var(--ivory); font-size:16px; padding:13px 14px;
+}
+.add-form input::placeholder{ color:#5E7566; }
+.add-form button{
+  font-family:var(--num); font-weight:600; letter-spacing:.08em; font-size:15px;
+  background:var(--felt-700); border:1px solid var(--line); border-radius:12px; padding:0 20px; color:var(--ivory);
+}
+.add-form button:active{ background:var(--felt-650); }
+.seg{ display:grid; grid-template-columns:repeat(4,1fr); gap:8px; }
+.seg button{
+  font-family:var(--num); font-weight:600; font-size:19px; padding:12px 0;
+  background:var(--felt-800); border:1px solid var(--line-soft); border-radius:12px; color:var(--ivory-dim);
+}
+.seg button.on{ background:var(--felt-650); border-color:var(--brass-deep); color:var(--brass-hi); }
+.btn-primary{
+  font-family:var(--disp); font-size:21px; padding:18px 10px 15px;
+  background:linear-gradient(180deg, var(--brass-hi), var(--brass) 55%, var(--brass-deep));
+  color:#2A1E08; border-radius:14px; box-shadow:0 4px 0 #6B4A15, 0 10px 24px rgba(0,0,0,.45);
+  letter-spacing:.02em;
+}
+.btn-primary:active{ transform:translateY(3px); box-shadow:0 1px 0 #6B4A15; }
+.btn-primary:disabled{ filter:grayscale(.7) brightness(.6); box-shadow:none; cursor:default; transform:none; }
+.linkish{ align-self:center; color:var(--ivory-dim); font-size:14px; text-decoration:underline; text-underline-offset:3px; padding:6px 10px; }
+.setup .hint{ text-align:center; color:#5E7566; font-size:13px; }
+
+/* ---------- game chrome ---------- */
+.topbar{
+  display:flex; align-items:center; justify-content:space-between;
+  padding:calc(10px + env(safe-area-inset-top)) 10px 8px;
+}
+.topbar .round-label{ font-family:var(--num); font-weight:600; font-size:15px; letter-spacing:.18em; color:var(--ivory-dim); }
+.topbar .round-label b{ color:var(--ivory); font-weight:700; }
+.chip-btn{
+  display:flex; align-items:center; gap:6px;
+  font-family:var(--num); font-weight:600; font-size:13px; letter-spacing:.1em;
+  color:var(--ivory-dim); background:var(--felt-800); border:1px solid var(--line-soft);
+  border-radius:999px; padding:8px 14px;
+}
+.chip-btn:active{ background:var(--felt-700); color:var(--ivory); }
+.chip-btn:disabled{ opacity:.35; cursor:default; }
+
+/* ---------- pot marquee ---------- */
+.marquee{ text-align:center; padding:10px 16px 6px; }
+.marquee .bank-word{
+  font-family:var(--disp); font-size:17px; color:var(--brass-deep); letter-spacing:.34em; padding-left:.34em;
+}
+.pot{
+  font-family:var(--num); font-weight:700; font-variant-numeric:tabular-nums;
+  font-size:clamp(64px, 22vw, 92px); line-height:1.02; color:var(--brass);
+  text-shadow:0 0 34px rgba(231,176,74,.28);
+  transition:transform .15s ease;
+}
+.pot.bump{ animation:bump .3s ease; }
+.pot.flare{ animation:flare .55s ease; }
+.pot.wipe{ animation:wipe .5s ease; color:var(--red); }
+@keyframes bump{ 40%{ transform:scale(1.055);} }
+@keyframes flare{ 30%{ transform:scale(1.12); text-shadow:0 0 60px rgba(246,204,122,.85); color:var(--brass-hi);} }
+@keyframes wipe{ 20%,60%{ transform:translateX(-7px);} 40%,80%{ transform:translateX(7px);} }
+.ticker{ min-height:22px; margin-top:2px; font-size:14px; color:var(--ivory-dim); }
+.ticker b{ color:var(--ivory); font-weight:600; }
+.ticker .gold{ color:var(--brass); font-weight:700; }
+.ticker .bad{ color:var(--red); font-weight:700; }
+.ticker .good{ color:var(--mint); font-weight:700; }
+
+/* ---------- players ---------- */
+.players{ flex:1; padding:10px 14px 16px; display:flex; flex-direction:column; gap:8px; }
+.pcard{
+  display:flex; align-items:center; gap:12px;
+  background:var(--felt-800); border:1px solid var(--line-soft); border-radius:14px;
+  padding:10px 12px; position:relative; overflow:hidden;
+}
+.pcard.rolling{ border-color:var(--brass-deep); background:linear-gradient(90deg, rgba(231,176,74,.10), var(--felt-800) 45%); }
+.pcard.out{ opacity:.62; }
+.pcard.fresh-bank{ animation:banked .6s ease; }
+@keyframes banked{ 0%{ box-shadow:inset 0 0 0 999px rgba(99,201,141,.28);} 100%{ box-shadow:inset 0 0 0 999px rgba(99,201,141,0);} }
+.pcard .who{ flex:1; min-width:0; }
+.pcard .pname{ display:flex; align-items:center; gap:8px; font-weight:600; font-size:16px; }
+.pcard .pname span{ overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.roll-tag{
+  font-family:var(--num); font-size:10px; font-weight:600; letter-spacing:.14em;
+  color:#2A1E08; background:var(--brass); border-radius:4px; padding:2px 6px 1px; flex:none;
+}
+.pstats{ display:flex; gap:10px; margin-top:3px; font-family:var(--num); font-size:12px; letter-spacing:.08em; color:var(--ivory-dim); }
+.pstats .v{ color:var(--ivory); font-weight:600; }
+.pstats .s7 .v{ color:var(--red); }
+.pstats .sd .v{ color:var(--brass); }
+.pcard .score{ font-family:var(--num); font-weight:700; font-size:27px; font-variant-numeric:tabular-nums; color:var(--ivory); }
+.bank-btn{
+  font-family:var(--disp); font-size:13px; color:var(--mint);
+  border:1.5px solid var(--mint-deep); border-radius:10px; padding:11px 13px 9px; flex:none;
+  background:rgba(99,201,141,.07);
+}
+.bank-btn:active{ background:rgba(99,201,141,.22); }
+.banked-tag{
+  font-family:var(--num); font-weight:600; font-size:14px; letter-spacing:.06em;
+  color:var(--mint); text-align:right; flex:none;
+}
+.banked-tag small{ display:block; font-size:10px; letter-spacing:.18em; color:var(--ivory-dim); }
+.busted-tag{ font-family:var(--num); font-weight:600; font-size:12px; letter-spacing:.14em; color:var(--red-dim); flex:none; }
+
+/* ---------- roll pad ---------- */
+.pad{
+  position:sticky; bottom:0; z-index:5;
+  background:linear-gradient(180deg, rgba(12,29,22,0), var(--felt-900) 14%);
+  padding:12px 14px calc(14px + env(safe-area-inset-bottom));
+  border-top:1px solid var(--line-soft);
+  display:flex; flex-direction:column; gap:10px;
+}
+.turnline{ display:flex; align-items:center; justify-content:space-between; gap:10px; }
+.turnline .turn{ font-family:var(--num); font-weight:600; font-size:15px; letter-spacing:.1em; text-transform:uppercase; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.turnline .turn b{ color:var(--brass); font-weight:700; }
+.phase{ display:flex; gap:5px; align-items:center; flex:none; }
+.phase .pip{ width:9px; height:9px; border-radius:50%; background:var(--felt-650); border:1px solid var(--line); }
+.phase .pip.lit{ background:var(--brass); border-color:var(--brass); box-shadow:0 0 8px rgba(231,176,74,.6); }
+.phase .safe-note{ font-family:var(--num); font-size:11px; letter-spacing:.12em; color:var(--ivory-dim); margin-left:4px; }
+.danger-chip{
+  font-family:var(--num); font-weight:600; font-size:11px; letter-spacing:.14em;
+  color:var(--red); border:1px solid var(--red-dim); background:rgba(232,92,65,.08);
+  border-radius:999px; padding:4px 10px;
+}
+.grid{ display:grid; grid-template-columns:repeat(10,1fr); gap:7px; }
+.key{
+  grid-column:span 2; min-height:54px;
+  font-family:var(--num); font-weight:600; font-size:23px; color:var(--ivory);
+  background:var(--felt-700); border:1px solid var(--line); border-bottom-width:3px; border-radius:11px;
+  display:flex; flex-direction:column; align-items:center; justify-content:center; line-height:1;
+}
+.key:active{ background:var(--felt-650); transform:translateY(1px); border-bottom-width:2px; }
+.key small{ font-family:var(--body); font-weight:600; font-size:9px; letter-spacing:.1em; color:var(--ivory-dim); margin-top:3px; }
+.key.k7{ grid-column:span 4; }
+.key.k7.safe7{ color:var(--brass-hi); border-color:var(--brass-deep); background:rgba(231,176,74,.12); }
+.key.k7.safe7 small{ color:var(--brass); }
+.key.k7.bust7{ color:var(--red); border-color:var(--red-dim); background:rgba(232,92,65,.10); }
+.key.k7.bust7 small{ color:var(--red); }
+.key.kdbl{ grid-column:span 6; font-size:16px; letter-spacing:.14em; color:var(--brass-hi); border-color:var(--brass-deep); background:rgba(231,176,74,.07); }
+.key.kdbl small{ color:var(--ivory-dim); letter-spacing:.08em; }
+.dbl-pick{ display:grid; grid-template-columns:repeat(3,1fr); gap:7px; }
+.dbl-pick .key{ grid-column:auto; flex-direction:row; gap:8px; min-height:56px; }
+.dbl-pick .key .facepair{ display:flex; gap:3px; }
+.dbl-pick .cancel{ grid-column:1 / -1; min-height:44px; font-size:13px; letter-spacing:.14em; color:var(--ivory-dim); background:var(--felt-800); }
+.die{ width:20px; height:20px; background:var(--ivory); border-radius:4px; display:block; }
+.die circle{ fill:#20402E; }
+
+/* ---------- overlays ---------- */
+.scrim{
+  position:fixed; inset:0; z-index:20; display:flex; align-items:center; justify-content:center;
+  background:rgba(4,10,8,.82); backdrop-filter:blur(3px); padding:20px;
+}
+.sheet{
+  width:100%; max-width:420px; max-height:86vh; overflow-y:auto;
+  background:var(--felt-900); border:1px solid var(--line); border-radius:18px;
+  padding:26px 20px calc(20px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:16px;
+  box-shadow:0 30px 80px rgba(0,0,0,.6);
+}
+.stamp{ font-family:var(--disp); font-size:clamp(28px, 8.5vw, 36px); text-align:center; line-height:1.05; }
+.stamp.red{ color:var(--red); text-shadow:0 0 30px rgba(232,92,65,.35); }
+.stamp.mint{ color:var(--mint); text-shadow:0 0 30px rgba(99,201,141,.3); }
+.stamp.gold{ color:var(--brass); text-shadow:0 0 30px rgba(231,176,74,.35); }
+.sheet .sub{ text-align:center; color:var(--ivory-dim); font-size:15px; margin-top:-6px; }
+.sheet .sub b{ color:var(--ivory); }
+.tally{ display:flex; flex-direction:column; gap:6px; }
+.tally-row{
+  display:flex; justify-content:space-between; align-items:center; gap:10px;
+  background:var(--felt-800); border:1px solid var(--line-soft); border-radius:10px; padding:9px 13px;
+}
+.tally-row .tn{ font-weight:600; font-size:15px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.tally-row .tv{ font-family:var(--num); font-weight:700; font-size:18px; font-variant-numeric:tabular-nums; }
+.tally-row .tv.got{ color:var(--mint); }
+.tally-row .tv.lost{ color:var(--red-dim); }
+.sheet .row2{ display:flex; gap:10px; }
+.sheet .row2 > *{ flex:1; }
+.btn-ghost{
+  font-family:var(--num); font-weight:600; font-size:14px; letter-spacing:.1em;
+  color:var(--ivory-dim); border:1px solid var(--line); border-radius:12px; padding:14px 8px; text-transform:uppercase;
+}
+.btn-ghost:active{ background:var(--felt-800); color:var(--ivory); }
+.btn-ghost.danger{ color:var(--red); border-color:var(--red-dim); }
+
+/* ---------- final ---------- */
+.final{ padding:calc(24px + env(safe-area-inset-top)) 18px calc(28px + env(safe-area-inset-bottom)); display:flex; flex-direction:column; gap:22px; flex:1; }
+.podium{
+  text-align:center; background:var(--felt-800); border:1px solid var(--brass-deep); border-radius:18px;
+  padding:22px 16px 18px; box-shadow:0 0 40px rgba(231,176,74,.10) inset;
+}
+.podium .crown{ font-family:var(--disp); font-size:14px; color:var(--brass-deep); letter-spacing:.3em; padding-left:.3em; }
+.podium .wname{ font-family:var(--disp); font-size:clamp(26px, 8vw, 34px); color:var(--brass); margin-top:8px; line-height:1.1; }
+.podium .wscore{ font-family:var(--num); font-weight:700; font-size:40px; color:var(--ivory); margin-top:4px; font-variant-numeric:tabular-nums; }
+.table-wrap{ overflow-x:auto; border:1px solid var(--line-soft); border-radius:14px; background:var(--felt-800); }
+table{ border-collapse:collapse; width:100%; min-width:330px; }
+th,td{ padding:10px 8px; text-align:right; white-space:nowrap; }
+th:first-child, td:first-child{ padding-left:12px; }
+th:last-child, td:last-child{ padding-right:12px; }
+th{ font-family:var(--num); font-weight:600; font-size:10px; letter-spacing:.14em; color:var(--ivory-dim); text-transform:uppercase; border-bottom:1px solid var(--line); }
+td{ font-family:var(--num); font-weight:500; font-size:15px; font-variant-numeric:tabular-nums; border-bottom:1px solid var(--line-soft); }
+tr:last-child td{ border-bottom:none; }
+th:first-child, td:first-child{ text-align:left; }
+td.tscore{ font-weight:700; color:var(--brass); }
+td.t7{ color:var(--red); }
+td.tdbl{ color:var(--brass-hi); }
+td .rank{ color:var(--ivory-dim); font-size:12px; margin-right:8px; }
+td .winner-dot{ color:var(--brass); }
+
+/* ---------- rules ---------- */
+.rules{ display:flex; flex-direction:column; gap:12px; font-size:14.5px; color:var(--ivory); }
+.rules h3{ font-family:var(--num); font-weight:600; font-size:13px; letter-spacing:.18em; text-transform:uppercase; color:var(--brass); margin-top:4px; }
+.rules p{ color:var(--ivory-dim); }
+.rules p b{ color:var(--ivory); }
+.rules .r7{ color:var(--red); font-weight:700; }
+.rules .rg{ color:var(--brass); font-weight:700; }
+.rules .rm{ color:var(--mint); font-weight:700; }
+
+/* ---------- toast ---------- */
+.toast{
+  position:fixed; left:50%; bottom:calc(120px + env(safe-area-inset-bottom)); transform:translateX(-50%);
+  background:var(--felt-700); border:1px solid var(--line); color:var(--ivory);
+  font-size:14px; padding:10px 18px; border-radius:999px; z-index:40;
+  box-shadow:0 10px 30px rgba(0,0,0,.5); animation:toastin .25s ease; white-space:nowrap;
+}
+@keyframes toastin{ from{ opacity:0; transform:translate(-50%, 8px);} }
+
+.menu-list{ display:flex; flex-direction:column; gap:8px; }
+.menu-list .btn-ghost{ text-align:left; padding:15px 16px; }
+
+@media (prefers-reduced-motion: reduce){
+  *{ animation:none !important; transition:none !important; }
+}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<script>
+"use strict";
+/* =================================================================
+   BANK IT! — a scorekeeper for the push-your-luck dice game BANK.
+   Rolls 1–3 are safe: every sum adds to the bank and a 7 adds 70.
+   From roll 4 on: doubles double the bank, a 7 wipes it and ends
+   the round. Bank between rolls to lock in the pot. Tracks each
+   player's doubles and sevens all game long.
+   ================================================================= */
+
+/* __LOGIC_START__ */
+var SAFE_ROLLS = 3;
+
+function newPlayer(name){
+  return { name:name, score:0, banked:false, bankedAmt:0,
+           doubles:0, sevens:0, banks:0, bestBank:0 };
+}
+
+function newGame(names, totalRounds){
+  return {
+    screen:"game", totalRounds:totalRounds, round:1,
+    pot:0, rolls:0, turn:0, seq:0,
+    players:names.map(newPlayer),
+    over:null,           /* null | {reason:"seven"|"allBanked"} */
+    last:null            /* descriptor of the latest event, for the ticker */
+  };
+}
+
+function inSafe(g){ return g.rolls < SAFE_ROLLS; }
+
+function activeCount(g){
+  var n = 0;
+  for(var i=0;i<g.players.length;i++) if(!g.players[i].banked) n++;
+  return n;
+}
+
+function nextTurnFrom(g, idx){
+  var n = g.players.length;
+  for(var k=1;k<=n;k++){
+    var j = (idx + k) % n;
+    if(!g.players[j].banked) return j;
+  }
+  return idx;
+}
+
+/* sum: 2–12, or null for a doubles roll in the danger phase
+   (the value doesn't matter there — the bank doubles either way). */
+function applyRoll(g, sum, isDouble){
+  if(g.over || g.screen !== "game") return;
+  var p = g.players[g.turn];
+  var safe = inSafe(g);
+  if(safe && (sum == null)) return; /* safe-phase doubles need a value */
+  if(isDouble) p.doubles++;
+  if(sum === 7) p.sevens++;
+  g.rolls++;
+  if(safe){
+    if(sum === 7){
+      g.pot += 70;
+      g.last = { kind:"seven70", player:p.name };
+    }else{
+      g.pot += sum;
+      g.last = { kind: isDouble ? "dblAdd" : "add", sum:sum, player:p.name };
+    }
+  }else if(sum === 7){
+    g.last = { kind:"sevenOut", player:p.name, lost:g.pot };
+    g.over = { reason:"seven" };
+    return;
+  }else if(isDouble){
+    g.pot *= 2;
+    g.last = { kind:"dblX2", player:p.name };
+  }else{
+    g.pot += sum;
+    g.last = { kind:"add", sum:sum, player:p.name };
+  }
+  g.turn = nextTurnFrom(g, g.turn);
+}
+
+function bankPlayer(g, i){
+  if(g.over || g.screen !== "game") return;
+  var p = g.players[i];
+  if(!p || p.banked) return;
+  p.banked = true;
+  p.bankedAmt = g.pot;
+  p.score += g.pot;
+  p.banks++;
+  if(g.pot > p.bestBank) p.bestBank = g.pot;
+  g.last = { kind:"bank", sum:g.pot, player:p.name, idx:i };
+  if(activeCount(g) === 0){
+    g.over = { reason:"allBanked" };
+    return;
+  }
+  if(g.players[g.turn].banked) g.turn = nextTurnFrom(g, g.turn);
+}
+
+function advanceRound(g){
+  if(!g.over) return;
+  if(g.round >= g.totalRounds){ g.screen = "gameOver"; return; }
+  g.round++;
+  g.pot = 0; g.rolls = 0; g.over = null; g.last = null;
+  for(var i=0;i<g.players.length;i++){
+    g.players[i].banked = false;
+    g.players[i].bankedAmt = 0;
+  }
+  g.turn = (g.round - 1) % g.players.length;
+}
+
+function standings(g){
+  var rows = g.players.map(function(p, i){ return { p:p, seat:i }; });
+  rows.sort(function(a,b){ return b.p.score - a.p.score || a.seat - b.seat; });
+  return rows;
+}
+
+function topScore(g){
+  var t = 0;
+  for(var i=0;i<g.players.length;i++) if(g.players[i].score > t) t = g.players[i].score;
+  return t;
+}
+/* __LOGIC_END__ */
+
+/* ---------------- app state ---------------- */
+var STORE_KEY = "bankit.v1";
+var MAX_PLAYERS = 12;
+var game = null;
+var undoStack = [];
+var setup = { names:[], rounds:10 };
+var ui = { dblPick:false, modal:null, nameDraft:"", doneFx:-1 };
+var app = document.getElementById("app");
+
+function loadSaved(){
+  try{
+    var raw = localStorage.getItem(STORE_KEY);
+    if(!raw) return null;
+    return JSON.parse(raw);
+  }catch(e){ return null; }
+}
+function save(){
+  try{
+    localStorage.setItem(STORE_KEY, JSON.stringify({
+      game:game, setup:setup, history:undoStack.slice(-20)
+    }));
+  }catch(e){ /* storage unavailable — play on without persistence */ }
+}
+
+function fmt(n){ return (n || 0).toLocaleString("en-US"); }
+function esc(s){
+  return String(s).replace(/[&<>"']/g, function(c){
+    return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c];
+  });
+}
+
+/* mutate() wraps every game-changing action: snapshot for undo,
+   apply, bump the fx sequence, persist, re-render. */
+function mutate(fn){
+  if(!game) return;
+  undoStack.push(JSON.stringify(game));
+  if(undoStack.length > 200) undoStack.shift();
+  var potBefore = game.pot;
+  fn();
+  game.seq++;
+  save();
+  render({ potFrom: potBefore });
+}
+
+function undo(){
+  if(!undoStack.length) return;
+  try{ game = JSON.parse(undoStack.pop()); }catch(e){ return; }
+  ui.dblPick = false;
+  save();
+  render({});
+  toast("Undone");
+}
+
+/* ---------------- tiny fx ---------------- */
+var toastTimer = null;
+function toast(msg){
+  var old = document.querySelector(".toast");
+  if(old) old.remove();
+  var t = document.createElement("div");
+  t.className = "toast";
+  t.textContent = msg;
+  document.body.appendChild(t);
+  clearTimeout(toastTimer);
+  toastTimer = setTimeout(function(){ t.remove(); }, 2200);
+}
+function buzz(pattern){
+  try{ if(navigator.vibrate) navigator.vibrate(pattern); }catch(e){}
+}
+function animatePot(el, from, to){
+  if(from === to) return;
+  var start = null, dur = 320;
+  function step(ts){
+    if(start === null) start = ts;
+    var t = Math.min(1, (ts - start) / dur);
+    var eased = 1 - Math.pow(1 - t, 3);
+    el.textContent = fmt(Math.round(from + (to - from) * eased));
+    if(t < 1) requestAnimationFrame(step);
+  }
+  try{
+    if(matchMedia("(prefers-reduced-motion: reduce)").matches){ el.textContent = fmt(to); return; }
+  }catch(e){}
+  requestAnimationFrame(step);
+}
+
+/* ---------------- svg dice ---------------- */
+var PIPS = {
+  1:[[1,1]], 2:[[0,0],[2,2]], 3:[[0,0],[1,1],[2,2]],
+  4:[[0,0],[0,2],[2,0],[2,2]], 5:[[0,0],[0,2],[1,1],[2,0],[2,2]],
+  6:[[0,0],[0,1],[0,2],[2,0],[2,1],[2,2]]
+};
+function dieSVG(v){
+  var dots = PIPS[v].map(function(p){
+    return '<circle cx="' + (5 + p[1]*5) + '" cy="' + (5 + p[0]*5) + '" r="1.9"></circle>';
+  }).join("");
+  return '<svg class="die" viewBox="0 0 20 20" aria-hidden="true"><rect x="0" y="0" width="20" height="20" rx="4" fill="#F2EAD3"></rect>' + dots + "</svg>";
+}
+
+/* ---------------- templates ---------------- */
+function tickerHTML(g){
+  var l = g.last;
+  if(!l) return g.rolls === 0 ? 'Round ' + g.round + ' — dice are hot. Roll!' : "";
+  switch(l.kind){
+    case "add":     return "<b>" + esc(l.player) + "</b> rolled <b>" + l.sum + "</b> · +" + l.sum;
+    case "dblAdd":  return "<b>" + esc(l.player) + '</b> rolled <span class="gold">doubles</span> · +' + l.sum;
+    case "seven70": return "<b>" + esc(l.player) + '</b> rolled a 7 · <span class="gold">+70!</span>';
+    case "dblX2":   return "<b>" + esc(l.player) + '</b> rolled <span class="gold">doubles — bank ×2!</span>';
+    case "sevenOut":return "<b>" + esc(l.player) + '</b> rolled a <span class="bad">7 — seven out!</span>';
+    case "bank":    return "<b>" + esc(l.player) + '</b> <span class="good">banked ' + fmt(l.sum) + "</span>";
+  }
+  return "";
+}
+
+function playerCardHTML(g, i, fresh){
+  var p = g.players[i];
+  var rolling = !g.over && i === g.turn && !p.banked;
+  var cls = "pcard" + (rolling ? " rolling" : "") + (p.banked ? " out" : "");
+  if(fresh && g.last && g.last.kind === "bank" && g.last.idx === i) cls += " fresh-bank";
+  var right;
+  if(p.banked){
+    right = '<div class="banked-tag"><small>BANKED</small>+' + fmt(p.bankedAmt) + "</div>";
+  }else if(g.over){
+    right = g.over.reason === "seven" ? '<div class="busted-tag">BUSTED</div>' : "";
+  }else{
+    right = '<button class="bank-btn" data-a="bank" data-i="' + i + '" aria-label="Bank the pot for ' + esc(p.name) + '">BANK</button>';
+  }
+  return '<div class="' + cls + '">' +
+    '<div class="who">' +
+      '<div class="pname"><span>' + esc(p.name) + "</span>" + (rolling ? '<span class="roll-tag">ROLLING</span>' : "") + "</div>" +
+      '<div class="pstats">' +
+        '<span class="sd">DBLS <span class="v">' + p.doubles + "</span></span>" +
+        '<span class="s7">7s <span class="v">' + p.sevens + "</span></span>" +
+        '<span>BANKS <span class="v">' + p.banks + "</span></span>" +
+      "</div>" +
+    "</div>" +
+    '<div class="score num">' + fmt(p.score) + "</div>" +
+    right +
+  "</div>";
+}
+
+function padHTML(g){
+  var safe = inSafe(g);
+  if(ui.dblPick && safe){
+    var picks = [1,2,3,4,5,6].map(function(v){
+      return '<button class="key" data-a="dblpick" data-s="' + (v*2) + '" aria-label="Doubles ' + v + ' and ' + v + '">' +
+        '<span class="facepair">' + dieSVG(v) + dieSVG(v) + "</span><span>" + (v*2) + "</span></button>";
+    }).join("");
+    return '<div class="grid dbl-pick">' + picks +
+      '<button class="key cancel" data-a="dblcancel">CANCEL — NOT DOUBLES</button></div>';
+  }
+  var keys = "";
+  [2,3,4,5,6].forEach(function(s){ keys += '<button class="key" data-a="roll" data-s="' + s + '">' + s + "</button>"; });
+  [8,9,10,11,12].forEach(function(s){ keys += '<button class="key" data-a="roll" data-s="' + s + '">' + s + "</button>"; });
+  keys += '<button class="key k7 ' + (safe ? "safe7" : "bust7") + '" data-a="roll" data-s="7">7<small>' +
+          (safe ? "+70" : "SEVEN OUT") + "</small></button>";
+  keys += '<button class="key kdbl" data-a="' + (safe ? "dblopen" : "dblx2") + '">DOUBLES<small>' +
+          (safe ? "ADDS FACE VALUE" : "×2 THE BANK") + "</small></button>";
+  return '<div class="grid">' + keys + "</div>";
+}
+
+function phaseHTML(g){
+  if(inSafe(g)){
+    var pips = "";
+    for(var r=0;r<SAFE_ROLLS;r++) pips += '<span class="pip' + (r >= g.rolls ? " lit" : "") + '"></span>';
+    return '<div class="phase" title="Safe rolls left">' + pips + '<span class="safe-note">SAFE</span></div>';
+  }
+  return '<div class="phase"><span class="danger-chip">7 WIPES IT · DBLS ×2</span></div>';
+}
+
+function gameHTML(g, fresh){
+  var roller = g.players[g.turn];
+  var cards = "";
+  for(var i=0;i<g.players.length;i++) cards += playerCardHTML(g, i, fresh);
+  return "" +
+  '<div class="topbar">' +
+    '<button class="chip-btn" data-a="undo" ' + (undoStack.length ? "" : "disabled") + '>&#8630; UNDO</button>' +
+    '<div class="round-label">ROUND <b>' + g.round + "</b> / " + g.totalRounds + "</div>" +
+    '<button class="chip-btn" data-a="menu" aria-label="Menu">MENU</button>' +
+  "</div>" +
+  '<div class="marquee">' +
+    '<div class="bank-word">THE BANK</div>' +
+    '<div class="pot num" id="pot">' + fmt(g.pot) + "</div>" +
+    '<div class="ticker">' + tickerHTML(g) + "</div>" +
+  "</div>" +
+  '<div class="players">' + cards + "</div>" +
+  '<div class="pad">' +
+    '<div class="turnline">' +
+      '<div class="turn">ROLL ' + (g.rolls + 1) + " — <b>" + esc(roller ? roller.name : "") + "</b></div>" +
+      phaseHTML(g) +
+    "</div>" + padHTML(g) +
+  "</div>";
+}
+
+function roundOverHTML(g){
+  var seven = g.over.reason === "seven";
+  var lastRound = g.round >= g.totalRounds;
+  var rows = g.players.map(function(p){
+    var v = p.banked ? '<span class="tv got">+' + fmt(p.bankedAmt) + "</span>" : '<span class="tv lost">+0</span>';
+    return '<div class="tally-row"><span class="tn">' + esc(p.name) + "</span>" + v + "</div>";
+  }).join("");
+  return '<div class="scrim"><div class="sheet" role="dialog" aria-modal="true">' +
+    '<div class="stamp ' + (seven ? "red" : "mint") + '">' + (seven ? "SEVEN OUT!" : "ALL BANKED!") + "</div>" +
+    '<div class="sub">' + (seven
+        ? "<b>" + esc(g.last.player) + "</b> rolled a 7 — <b>" + fmt(g.last.lost) + "</b> gone."
+        : "Everyone locked in their winnings.") + "</div>" +
+    '<div class="tally">' + rows + "</div>" +
+    '<div class="row2">' +
+      '<button class="btn-ghost" data-a="undo">&#8630; Undo</button>' +
+      '<button class="btn-primary" data-a="nextround">' + (lastRound ? "FINAL SCORES" : "ROUND " + (g.round + 1)) + "</button>" +
+    "</div>" +
+  "</div></div>";
+}
+
+function setupHTML(){
+  var rows = setup.names.map(function(n, i){
+    return '<div class="roster-row"><span class="seat num">' + (i + 1) + '</span>' +
+      '<span class="rname">' + esc(n) + '</span>' +
+      '<button class="kick" data-a="kick" data-i="' + i + '" aria-label="Remove ' + esc(n) + '">&#10005;</button></div>';
+  }).join("");
+  var segs = [5,10,15,20].map(function(r){
+    return '<button class="' + (setup.rounds === r ? "on" : "") + '" data-a="rounds" data-r="' + r + '">' + r + "</button>";
+  }).join("");
+  var canStart = setup.names.length >= 2;
+  var full = setup.names.length >= MAX_PLAYERS;
+  return '<div class="setup">' +
+    '<div class="wordmark">' +
+      '<div class="pips">' + dieSVG(5) + dieSVG(2) + "</div>" +
+      "<h1>BANK IT!</h1>" +
+      '<div class="tag">Push your luck. Bank the pot before the 7 hits.</div>' +
+    "</div>" +
+    '<div class="setup-block"><span class="eyebrow">Players &middot; ' + setup.names.length + "</span>" +
+      '<div class="roster">' + rows + "</div>" +
+      (full ? '<div class="hint">Table&rsquo;s full — 12 players max.</div>' :
+      '<form class="add-form" data-a-form="add">' +
+        '<input type="text" name="pname" placeholder="Add a player&hellip;" maxlength="14" autocomplete="off" enterkeyhint="done" value="' + esc(ui.nameDraft) + '">' +
+        "<button type=\"submit\">ADD</button></form>") +
+    "</div>" +
+    '<div class="setup-block"><span class="eyebrow">Rounds</span><div class="seg">' + segs + "</div></div>" +
+    '<button class="btn-primary" data-a="start" ' + (canStart ? "" : "disabled") + ">DEAL ME IN</button>" +
+    (canStart ? "" : '<div class="hint">Add at least 2 players to start.</div>') +
+    '<button class="linkish" data-a="howto">How to play</button>' +
+  "</div>";
+}
+
+function gameOverHTML(g){
+  var rows = standings(g);
+  var top = topScore(g);
+  var winners = rows.filter(function(r){ return r.p.score === top; });
+  var wnames = winners.map(function(r){ return esc(r.p.name); }).join(" & ");
+  var body = rows.map(function(r, idx){
+    var star = r.p.score === top ? '<span class="winner-dot">&#9733;</span> ' : "";
+    return "<tr>" +
+      '<td><span class="rank">' + (idx + 1) + "</span>" + star + esc(r.p.name) + "</td>" +
+      '<td class="tscore">' + fmt(r.p.score) + "</td>" +
+      '<td class="tdbl">' + r.p.doubles + "</td>" +
+      '<td class="t7">' + r.p.sevens + "</td>" +
+      "<td>" + r.p.banks + "</td>" +
+      "<td>" + fmt(r.p.bestBank) + "</td>" +
+    "</tr>";
+  }).join("");
+  return '<div class="final">' +
+    '<div class="podium">' +
+      '<div class="crown">' + (winners.length > 1 ? "IT&rsquo;S A TIE" : "CHAMPION") + "</div>" +
+      '<div class="wname">' + wnames + "</div>" +
+      '<div class="wscore">' + fmt(top) + "</div>" +
+    "</div>" +
+    '<div><span class="eyebrow">The ledger</span>' +
+      '<div class="table-wrap" style="margin-top:10px"><table>' +
+        "<thead><tr><th>Player</th><th>Score</th><th>Dbls</th><th>7s</th><th>Banks</th><th>Best</th></tr></thead>" +
+        "<tbody>" + body + "</tbody>" +
+      "</table></div></div>" +
+    '<div class="row2" style="display:flex;gap:10px">' +
+      '<button class="btn-ghost" style="flex:1" data-a="newgame-now">NEW TABLE</button>' +
+      '<button class="btn-primary" style="flex:1" data-a="rematch">REMATCH</button>' +
+    "</div>" +
+    '<button class="linkish" data-a="undo">&#8630; Back into the game</button>' +
+  "</div>";
+}
+
+function rulesHTML(){
+  return '<div class="scrim" data-a-scrim="close"><div class="sheet" role="dialog" aria-modal="true">' +
+    '<div class="stamp gold">HOW TO PLAY</div>' +
+    '<div class="rules">' +
+      "<h3>The bank</h3>" +
+      "<p>Players take turns rolling two dice. Every roll feeds a shared pot — <b>the bank</b>. Tap the total that was rolled.</p>" +
+      "<h3>Rolls 1&ndash;3 &middot; safe</h3>" +
+      '<p>Every sum adds to the bank, and a <span class="rg">7 adds 70</span>. Doubles just add their face value.</p>' +
+      "<h3>Roll 4 and on &middot; danger</h3>" +
+      '<p><span class="rg">Doubles double the whole bank.</span> A <span class="r7">7 wipes the bank</span> and ends the round — anyone not banked gets nothing.</p>' +
+      "<h3>Banking</h3>" +
+      '<p>Between rolls, any player can hit <span class="rm">BANK</span> to lock the current pot into their score. Banked players sit out the rest of the round. The round ends on a 7 or when everyone banks.</p>' +
+      "<h3>Winning &amp; stats</h3>" +
+      "<p>Highest score after the last round wins. The app counts every player&rsquo;s <b>doubles</b> and <b>7s</b> as they roll them — check the cards mid-game or the final ledger.</p>" +
+    "</div>" +
+    '<button class="btn-primary" data-a="closemodal">GOT IT</button>' +
+  "</div></div>";
+}
+
+function menuHTML(){
+  return '<div class="scrim" data-a-scrim="close"><div class="sheet" role="dialog" aria-modal="true">' +
+    '<div class="stamp gold">TABLE MENU</div>' +
+    '<div class="menu-list">' +
+      '<button class="btn-ghost" data-a="howto">How to play</button>' +
+      '<button class="btn-ghost" data-a="confirm-end">End game now &rarr; final scores</button>' +
+      '<button class="btn-ghost danger" data-a="confirm-new">Abandon game &amp; start over</button>' +
+    "</div>" +
+    '<button class="btn-primary" data-a="closemodal">BACK TO THE TABLE</button>' +
+  "</div></div>";
+}
+
+function confirmHTML(kind){
+  var end = kind === "confirm-end";
+  return '<div class="scrim"><div class="sheet" role="dialog" aria-modal="true">' +
+    '<div class="stamp ' + (end ? "gold" : "red") + '">' + (end ? "CASH OUT?" : "WALK AWAY?") + "</div>" +
+    '<div class="sub">' + (end
+      ? "End the game here and show final scores? Anything not banked is lost."
+      : "Abandon this game and set up a new table? Scores and stats will be lost.") + "</div>" +
+    '<div class="row2">' +
+      '<button class="btn-ghost" data-a="closemodal">KEEP PLAYING</button>' +
+      '<button class="btn-primary" data-a="' + (end ? "do-end" : "do-new") + '">' + (end ? "FINAL SCORES" : "NEW TABLE") + "</button>" +
+    "</div>" +
+  "</div></div>";
+}
+
+/* ---------------- render ---------------- */
+function render(fx){
+  var fresh = game && fx && fx.potFrom !== undefined && ui.doneFx !== game.seq;
+  var html;
+  if(!game){
+    html = setupHTML();
+  }else if(game.screen === "gameOver"){
+    html = gameOverHTML(game);
+  }else{
+    html = gameHTML(game, fresh);
+    if(game.over) html += roundOverHTML(game);
+  }
+  if(ui.modal === "howto") html += rulesHTML();
+  else if(ui.modal === "menu") html += menuHTML();
+  else if(ui.modal === "confirm-end" || ui.modal === "confirm-new") html += confirmHTML(ui.modal);
+  app.innerHTML = html;
+
+  if(game && game.screen === "game" && fresh){
+    ui.doneFx = game.seq;
+    var potEl = document.getElementById("pot");
+    var l = game.last;
+    if(potEl && l){
+      if(l.kind === "dblX2"){ potEl.classList.add("flare"); animatePot(potEl, fx.potFrom, game.pot); buzz([20,40,20]); }
+      else if(l.kind === "seven70"){ potEl.classList.add("flare"); animatePot(potEl, fx.potFrom, game.pot); }
+      else if(l.kind === "sevenOut"){ potEl.classList.add("wipe"); buzz([60,60,120]); }
+      else if(l.kind === "add" || l.kind === "dblAdd"){ potEl.classList.add("bump"); animatePot(potEl, fx.potFrom, game.pot); }
+    }
+  }
+  var draft = app.querySelector('.add-form input');
+  if(draft && ui.refocus){ draft.focus(); ui.refocus = false; }
+}
+
+/* ---------------- actions ---------------- */
+var actions = {
+  rounds: function(d){ setup.rounds = +d.r; save(); render({}); },
+  kick: function(d){ setup.names.splice(+d.i, 1); save(); render({}); },
+  start: function(){
+    if(setup.names.length < 2) return;
+    game = newGame(setup.names.slice(), setup.rounds);
+    undoStack = [];
+    ui.dblPick = false; ui.doneFx = -1;
+    save(); render({});
+  },
+  howto: function(){ ui.modal = "howto"; render({}); },
+  menu: function(){ ui.modal = "menu"; render({}); },
+  closemodal: function(){ ui.modal = null; render({}); },
+  "confirm-end": function(){ ui.modal = "confirm-end"; render({}); },
+  "confirm-new": function(){ ui.modal = "confirm-new"; render({}); },
+  "do-end": function(){
+    ui.modal = null;
+    mutate(function(){ game.screen = "gameOver"; game.over = null; });
+  },
+  "do-new": function(){ ui.modal = null; actions["newgame-now"](); },
+  "newgame-now": function(){
+    if(game) setup.names = game.players.map(function(p){ return p.name; });
+    game = null; undoStack = []; ui.dblPick = false;
+    save(); render({});
+  },
+  rematch: function(){
+    var names = game.players.map(function(p){ return p.name; });
+    game = newGame(names, game.totalRounds);
+    undoStack = []; ui.dblPick = false; ui.doneFx = -1;
+    save(); render({});
+    toast("Rematch — same table, fresh scores");
+  },
+  roll: function(d){
+    var s = +d.s;
+    ui.dblPick = false;
+    mutate(function(){ applyRoll(game, s, false); });
+  },
+  dblopen: function(){ ui.dblPick = true; render({}); },
+  dblcancel: function(){ ui.dblPick = false; render({}); },
+  dblpick: function(d){
+    var s = +d.s;
+    ui.dblPick = false;
+    mutate(function(){ applyRoll(game, s, true); });
+  },
+  dblx2: function(){
+    mutate(function(){ applyRoll(game, null, true); });
+  },
+  bank: function(d){
+    var i = +d.i;
+    mutate(function(){ bankPlayer(game, i); });
+  },
+  nextround: function(){
+    mutate(function(){ advanceRound(game); });
+  },
+  undo: function(){ ui.modal = null; undo(); }
+};
+
+app.addEventListener("click", function(e){
+  var scrim = e.target.closest("[data-a-scrim]");
+  if(scrim && e.target === scrim){ ui.modal = null; render({}); return; }
+  var btn = e.target.closest("[data-a]");
+  if(!btn || btn.disabled) return;
+  var a = btn.getAttribute("data-a");
+  if(actions[a]) actions[a](btn.dataset);
+});
+
+app.addEventListener("submit", function(e){
+  var form = e.target.closest("[data-a-form]");
+  if(!form) return;
+  e.preventDefault();
+  var input = form.querySelector("input[name=pname]");
+  var name = (input.value || "").trim().slice(0, 14);
+  if(!name || setup.names.length >= MAX_PLAYERS) return;
+  setup.names.push(name);
+  ui.nameDraft = "";
+  ui.refocus = true;
+  save(); render({});
+});
+
+app.addEventListener("input", function(e){
+  if(e.target.name === "pname") ui.nameDraft = e.target.value;
+});
+
+/* ---------------- boot ---------------- */
+(function boot(){
+  var saved = loadSaved();
+  if(saved){
+    if(saved.setup && Array.isArray(saved.setup.names)){
+      setup.names = saved.setup.names.slice(0, MAX_PLAYERS);
+      if([5,10,15,20].indexOf(saved.setup.rounds) !== -1) setup.rounds = saved.setup.rounds;
+    }
+    if(saved.game && saved.game.screen !== "gameOver" && Array.isArray(saved.game.players) && saved.game.players.length){
+      game = saved.game;
+      undoStack = Array.isArray(saved.history) ? saved.history : [];
+      ui.doneFx = game.seq;
+      render({});
+      toast("Picked up your game — round " + game.round);
+      return;
+    }
+  }
+  render({});
+})();
+</script>
+</body>
+</html>
