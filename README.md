@@ -4,6 +4,8 @@ A phone-friendly scorekeeper for **BANK**, the push-your-luck party dice game.
 One person keeps score while the table rolls two real dice — the app runs the
 bank, the turn order, the banking, and the stats.
 
+**▶ Play it live: https://cory-harms.github.io/Claude/**
+
 **No installs, no dependencies.** It's a single `index.html` — open it in any
 browser (or host it anywhere, e.g. GitHub Pages) and play.
 
